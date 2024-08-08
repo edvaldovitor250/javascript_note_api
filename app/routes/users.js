@@ -1,13 +1,13 @@
 var express = require('express');
 var router = express.Router();
-
-const User = require('../models/user')
+const withAuth = require('../middlewares/auth')
+const User = require('../models/user');
 
 require('dotenv').config();
 
-router.post('/register',async (req,res) =>{
-  const { name, email, password} = req.body;
-  const user = new User({name, email, password})
+router.post('/register', async (req, res) => {
+  const { name, email, password } = req.body;
+  const user = new User({ name, email, password });
 
   try {
     await user.save();
@@ -17,46 +17,52 @@ router.post('/register',async (req,res) =>{
     });
   } catch (error) {
     res.status(500).json({
-      error: error.message 
+      error: error.message
     });
   }
-})
+});
 
-router.put('/', withAuth, async function(req, res) {
+router.put('/', withAuth, async (req, res) => {
   const { name, email } = req.body;
 
   try {
-    var user = await User.findOneAndUpdate(
-      {_id: req.user._id}, 
-      { $set: { name: name, email: email}}, 
-      { upsert: true, 'new': true }
-    )
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { $set: { name, email } },
+      { new: true, runValidators: true }
+    );
     res.json(user);
   } catch (error) {
-    res.status(401).json({error: error});
+    res.status(401).json({ error: error.message });
   }
 });
 
-router.put('/password', withAuth, async function(req, res) {
+router.put('/password', withAuth, async (req, res) => {
   const { password } = req.body;
 
   try {
-    var user = await User.findOne({_id: req.user._id})
-    user.password = password
-    user.save()
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    user.password = password;
+    await user.save();
     res.json(user);
   } catch (error) {
-    res.status(401).json({error: error});
+    res.status(401).json({ error: error.message });
   }
 });
 
-router.delete('/', withAuth, async function(req, res) {
+router.delete('/', withAuth, async (req, res) => {
   try {
-    let user = await User.findOne({_id: req.user._id });
-    await user.delete();
-    res.json({message: 'OK'}).status(201);
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    await user.remove();
+    res.status(200).json({ message: 'User deleted successfully' });
   } catch (error) {
-    res.status(500).json({error: error});
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -64,37 +70,32 @@ router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
   try {
-      let user = await User.findOne({ email });
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid credentials' });
+    }
 
-      if (!user) {
-          return res.status(400).json({ error: 'Invalid credentials' });
-      }
+    const isMatch = await user.isCorrectPassword(password);
+    if (!isMatch) {
+      return res.status(400).json({ error: 'Invalid credentials' });
+    }
 
-      const isMatch = await user.isCorrectPassword(password);
-
-      if (!isMatch) {
-          return res.status(400).json({ error: 'Invalid credentials' });
-      }
-
-      const token = user.generateAuthToken();
-
-      res.json({
-          message: 'User logged in successfully',
-          user: {
-              name: user.name,
-              email: user.email,
-              _id: user._id,
-              created_at: user.created_at,
-              updated_at: user.updated_at
-          },
-          token
-      });
-
+    const token = user.generateAuthToken();
+    res.json({
+      message: 'User logged in successfully',
+      user: {
+        name: user.name,
+        email: user.email,
+        _id: user._id,
+        created_at: user.created_at,
+        updated_at: user.updated_at
+      },
+      token
+    });
   } catch (error) {
-      console.error(error.message);
-      res.status(500).send('Server error');
+    console.error(error.message);
+    res.status(500).send('Server error');
   }
 });
-
 
 module.exports = router;
