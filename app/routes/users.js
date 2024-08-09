@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 const withAuth = require('../middlewares/auth')
 const User = require('../models/user');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken'); 
 
 require('dotenv').config();
 
@@ -80,7 +82,42 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Invalid credentials' });
     }
 
-    const token = user.generateAuthToken();
+    const token = jwt.sign({ user: { id: user._id } }, process.env.JWT_TOKEN, { expiresIn: '1h' });
+
+    res.json({
+      message: 'User logged in successfully',
+      user: {
+        name: user.name,
+        email: user.email,
+        _id: user._id,
+        created_at: user.created_at,
+        updated_at: user.updated_at
+      },
+      token
+    });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Server error');
+  }
+});
+
+
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid credentials' });
+    }
+
+    const isMatch = await user.isCorrectPassword(password);
+    if (!isMatch) {
+      return res.status(400).json({ error: 'Invalid credentials' });
+    }
+
+    const token = jwt.sign({ user: { id: user._id } }, process.env.JWT_TOKEN, { expiresIn: '1h' });
+
     res.json({
       message: 'User logged in successfully',
       user: {
