@@ -3,6 +3,8 @@ var path = require('path');
 var logger = require('morgan');
 require('./config/database')
 var cors = require('cors');
+require('dotenv').config();
+
 
 var usersRouter = require('./app/routes/users');
 var notesRouter = require('./app/routes/notes');

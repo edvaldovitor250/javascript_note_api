@@ -4,6 +4,15 @@ const Note = require('../models/note')
 const withAuth = require('../middlewares/auth')
 
 
+router.get('/', withAuth, async (req, res) => {
+  try {
+    const notes = await Note.find({ author: req.user._id });
+    res.json(notes);
+  } catch (error) {
+    res.status(500).json({ error: "Problem to fetch notes" });
+  }
+});
+
 router.post('/', withAuth, async (req, res, next) => {
   const {title, body} = req.body;
 
@@ -20,17 +29,16 @@ router.post('/', withAuth, async (req, res, next) => {
   }
 })
 
-router.get('/search', withAuth, async (req,res) => {
-  const { query} = req.query;
+router.get('/search', withAuth, async (req, res) => {
+  const { query } = req.query;
   try {
-    let notes = await Note.find({author:req.user_id})
-    .find({$text:{$search: query}})
-    res.json(notes)
-    
+    let notes = await Note.find({ author: req.user._id })
+      .find({ $text: { $search: query } });
+    res.json(notes);
   } catch (error) {
-    res.json({error: error}).status(500)
+    res.status(500).json({ error: error.message });
   }
-})
+});
 
 router.get('/id', withAuth, async (req,res) =>{
   try {
