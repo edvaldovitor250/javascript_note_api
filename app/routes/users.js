@@ -24,6 +24,27 @@ router.post('/register', async (req, res) => {
   }
 });
 
+router.put('/password', withAuth, async (req, res) => {
+  const { password } = req.body;
+
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(password, salt);
+
+    await user.save();
+
+    res.json({ message: 'Password updated successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
 router.put('/', withAuth, async (req, res) => {
   const { name, email } = req.body;
 
