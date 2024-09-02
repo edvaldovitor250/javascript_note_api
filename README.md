@@ -103,6 +103,13 @@
       <td>Express</td>
       <td>MongoDB</td>
     </tr>
+    <tr>
+      <td>JavaScript (ECMAScript 2024)</td>
+      <td>React (^18.3.1)</td>
+      <td>NPM (9.0.0)</td>
+      <td>Express (^4.19.2)</td>
+      <td>MongoDB (^8.5.1)</td>
+    </tr>
   </tbody>
 </table>
 
