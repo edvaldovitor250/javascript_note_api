@@ -35,7 +35,7 @@
     </li>
     <li>
       Inicie o servidor de desenvolvimento utilizando o comando:
-      <code>npm run dev</code>
+      <code>nodemon run</code>
     </li>
     <li>
       Acesse a aplicação via navegador na porta <code>3001</code>. 🎉
