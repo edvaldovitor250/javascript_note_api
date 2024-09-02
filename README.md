@@ -89,7 +89,6 @@
   <thead>
     <tr>
       <th><img src="https://skillicons.dev/icons?i=js" width="100px" height="100px" alt="JavaScript" /></th>
-      <th><img src="https://skillicons.dev/icons?i=react" width="100px" height="100px" alt="React" /></th>
       <th><img src="https://skillicons.dev/icons?i=npm" width="100px" height="100px" alt="NPM" /></th>
       <th><img src="https://skillicons.dev/icons?i=express" width="100px" height="100px" alt="Express" /></th>
       <th><img src="https://skillicons.dev/icons?i=mongodb" width="100px" height="100px" alt="MongoDB" /></th>
@@ -98,14 +97,12 @@
   <tbody align="center">
     <tr>
       <td>JavaScript</td>
-      <td>React</td>
       <td>NPM</td>
       <td>Express</td>
       <td>MongoDB</td>
     </tr>
     <tr>
       <td>JavaScript (ECMAScript 2024)</td>
-      <td>React (^18.3.1)</td>
       <td>NPM (9.0.0)</td>
       <td>Express (^4.19.2)</td>
       <td>MongoDB (^8.5.1)</td>
